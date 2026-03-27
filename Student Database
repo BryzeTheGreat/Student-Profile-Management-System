@@ -1,0 +1,40 @@
+import sqlite3
+
+class StudentDatabase:
+    def __init__(self):
+        self.conn = sqlite3.connect("/storage/emulated/0/Download/DATABASE/student_practice.db")
+        self.cursor = self.conn.cursor()
+        
+    def create_table(self):
+        self.cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS student_profile (
+            identification INTEGER PRIMARY KEY,
+            name TEXT,
+            age INTEGER,
+            address TEXT,
+            year_level INTEGER,
+            course TEXT,
+            status TEXT
+            )
+            """
+        ) 
+        self.conn.commit()   
+        
+    def add_student(self, student_name, student_age, address, year_level, course, status):
+           self.cursor.execute(
+               "INSERT INTO student_profile (name, age, address, year_level, course, status) VALUES  (?, ?, ?, ?, ?, ?)",
+               (student_name, student_age, address, year_level, course, status)
+           )
+           
+           self.conn.commit()
+           
+    def locate_student_profile(self, name):
+        self.cursor.execute("SELECT * FROM student_profile WHERE name = ?", (name,))
+        
+        return self.cursor.fetchone()
+        
+    def delete_student(self, identification):
+        self.cursor.execute("DELETE FROM student_profile WHERE identification = ?", (identification,))   
+        
+        self.conn.commit()                    
