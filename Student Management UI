@@ -1,0 +1,140 @@
+import tkinter as tk
+from tkinter import ttk
+
+class Interface:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.frame = tk.Frame(self.root)
+        self.system = StudentDatabase()
+        
+    def addstudent_ui(self):
+        self.clear_frame()
+        
+        self.frame.place(relx=0.125, rely=0.2) 
+        #HEAD TITLE
+        tk.Label(self.frame, text="STUDENT PROFILE").grid(row=0, column=1, pady=50)
+        
+         
+        tk.Label(self.frame, text="Name").grid(row=1, column=0,padx=20, pady=20)
+        tk.Label(self.frame, text="Age").grid(row=1, column=1, padx=20, pady=20)
+        tk.Label(self.frame, text="Address").grid(row=1, column=2, padx=20, pady=20)
+        
+        self.name = tk.Entry(self.frame)
+        self.name.grid(row=2, column=0, padx=20, pady=20)
+        self.age = tk.Entry(self.frame)
+        self.age.grid(row=2, column=1, padx=20, pady=20)
+        self.address = tk.Entry(self.frame)
+        self.address.grid(row=2, column=2, padx=20, pady=20)
+        
+        tk.Label(self.frame, text="Year Level").grid(row=3, column=0, padx=20, pady=20)
+        tk.Label(self.frame, text="Course").grid(row=3, column=1, padx=20, pady=20)
+        tk.Label(self.frame, text="Status").grid(row=3, column=2, padx=20, pady=20)
+       
+        self.year_level = ttk.Combobox(self.frame, values=["1", "2", "3", "4"], state="readonly")
+        self.year_level.grid(row=4, column=0, padx=20, pady=20)
+        self.course = ttk.Combobox(self.frame, values=["BSIT", "BSN", "BSME", "BS CRIMINOLOGY", "BSED", "BSM", "BSCE"], state="readonly")
+        self.course.grid(row=4, column=1, padx=20, pady=20)
+        self.status = ttk.Combobox(self.frame, values=["Enrolled", "Graduated", "Pending", "Dropped"], state="readonly")
+        self.status.grid(row=4, column=2, padx=20, pady=20)
+        
+        tk.Button(self.frame, text="Submit", command=self.add_student_function, border=5, background="grey").grid(row=5, column=1)
+        tk.Button(self.frame, text="Main Menu", command=self.main_menu).place(relx=0.0001, rely=0.0001)
+        
+        self.msg_label = tk.Label(self.frame, text="", fg="Red")
+        self.msg_label.place(relx=0.04, rely=0.9)
+        
+    def add_student_function(self):
+        student_name = self.name.get().lower().strip()
+        student_age = self.age.get().strip()
+        address = self.address.get().lower().strip()
+        year_level = self.year_level.get().strip()
+        course = self.course.get().lower().strip()
+        status = self.status.get().lower().strip()
+        
+        if not student_name:            
+            self.msg_label.config(text="WARNING: NO NAME")
+            return
+        if not student_age:
+            self.msg_label.config(text="WARNING: NO AGE")
+            return
+        if not address:
+            self.msg_label.config(text="WARNING: NO ADDRESS")
+            return
+        if not year_level:
+            self.msg_label.config(text="WARNING: NO YEAR")
+            return
+        if not course:
+            self.msg_label.config(text="WARNING: NO CHOSEN COURSE")
+            return
+        if not status:
+            self.msg_label.config(text="WARNING: UNDEFINED STATUS")
+            return                    
+            
+        self.system.add_student(student_name, student_age, address, year_level, course, status)
+        self.msg_label.config(text="Student Info Successfully Saved", fg="green")
+        
+    def search_student(self):
+        self.clear_frame()
+        
+        self.student_data_name = tk.Entry(self.frame)
+        self.student_data_name.place(relx=0.025, rely=0.3, relwidth=0.5)
+        student_title = tk.Label(self.frame, text="Enter Student Name")
+        student_title.place(relx=0.17, rely=0.21)
+        
+        self.frame.pack(fill="both", expand=True)
+        tk.Label(self.frame, text="STUDENT PROFILE").grid(row=0, column=0, pady=50)
+                      
+        self.tree = ttk.Treeview(self.frame, columns=('ID', 'Name', 'Age', 'Address', 'Year', 'Course', 'Status'), show="headings", height=3)
+        
+        self.tree.heading("ID", text="ID")
+        self.tree.heading("Name", text="Name")
+        self.tree.heading("Age", text="Age")
+        self.tree.heading("Address", text="Address")
+        self.tree.heading("Year", text="Year")
+        self.tree.heading("Course", text="Course")
+        self.tree.heading("Status", text="Status")
+        
+        self.tree.column("ID", width=50)
+        self.tree.column("Name", width=200)
+        self.tree.column("Age", width=50)
+        self.tree.column("Address", width=200)
+        self.tree.column("Year", width=50)
+        self.tree.column("Course", width=300)
+        self.tree.column("Status", width=100)
+        
+        self.tree.place(relx=0.025, rely=0.4, relwidth=0.95)
+        
+        self.frame.grid_rowconfigure(1, weight=0)
+        self.frame.grid_columnconfigure(0, weight=10)
+        
+        tk.Button(self.frame, text="Search", command=self.student_data).place(relx=0.55, rely=0.275)
+        tk.Button(self.frame, text="Main Menu", command=self.main_menu).place(relx=0.425, rely=0.8)
+              
+        
+        
+    def student_data(self):
+         name = self.student_data_name.get() 
+        
+         students = self.system.locate_student_profile(name)
+        
+         for item in self.tree.get_children():
+                self.tree.delete(item)
+
+         if students:
+                self.tree.insert("", tk.END, values=students)                                                 
+                                                                                          
+    def main_menu(self):
+         self.clear_frame()
+         
+         self.frame.place(relx=0.35, rely=0.1)
+         tk.Button(self.frame, text="Add Student", command=self.addstudent_ui).grid(row=0, column=0)  
+         tk.Button(self.frame, text="View Student", command=self.search_student).grid(row=0, column=1)
+          
+         
+         
+    def clear_frame(self):
+         for widget in self.frame.winfo_children():
+             widget.destroy()     
+             
+         
+ui = Interface()
